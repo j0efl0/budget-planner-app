@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#01696f" />
+  <title>Budget + Debt Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #f7f6f2;
+      color: #28251d;
+    }
+    a {
+      color: #01696f;
+      text-decoration: none;
+    }
+    button,
+    input,
+    select {
+      font: inherit;
+      border-radius: 0.75rem;
+      border: 1px solid #d7d2ca;
+      padding: 0.75rem 0.9rem;
+      background: #ffffff;
+    }
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 2px solid #01696f;
+      outline-offset: 2px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #d7d2ca;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px rgba(40,37,29,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .card-sub {
+      margin: 0;
+      color: #6f6a62;
+      font-size: 0.85rem;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 700px) {
+      .summary-grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+    }
+    .summary-item {
+      padding: 0.9rem 1rem;
+      text-align: center;
+    }
+    .eyebrow {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6f6a62;
+    }
+    .summary-value {
+      margin-top: 0.3rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .summary-sub {
+      font-size: 0.8rem;
+      color: #6f6a62;
+    }
+    .form-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+    }
+    .field {
+      margin-bottom: 0.2rem;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #28251d;
+    }
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+    .segmented button {
+      padding: 0.9rem 0.8rem;
+      background: #f1efe9;
+      border: 1px solid #d7d2ca;
+      color: #6f6a62;
+      font-weight: 600;
+    }
+    .segmented button.active {
+      background: #01696f;
+      color: #f9f8f4;
+      border-color: #01696f;
+    }
+    .mini {
+      background: #f1efe9;
+      border-radius: 0.9rem;
+      padding: 0.8rem;
+    }
+    .mini span {
+      display: block;
+      font-size: 0.7rem;
+      color: #6f6a62;
+      margin-bottom: 0.15rem;
+    }
+    .mini strong {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .pill {
+      display: inline-block;
+      padding: 0.35rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .pill.installment {
+      background: #f9ecd4;
+      color: #964219;
+    }
+    .pill.revolving {
+      background: #e4f0f7;
+      color: #006494;
+    }
+    .pill.category-pill {
+      background: #e8f5eb;
+      color: #437a22;
+    }
+    .actions {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 0.8rem;
+    }
+    .primary-btn {
+      padding: 0.9rem 1rem;
+      background: #01696f;
+      color: #f9f8f4;
+      border: none;
+      font-weight: 700;
+      min-width: 120px;
+    }
+    .secondary-btn {
+      padding: 0.9rem 1rem;
+      background: #f1efe9;
+      border: 1px solid #d7d2ca;
+      color: #28251d;
+      font-weight: 600;
+    }
+    .danger-btn {
+      padding: 0.9rem 1rem;
+      background: #f9e8f0;
+      border: 1px solid #f1aec9;
+      color: #a12c7b;
+      font-weight: 600;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .brand p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #6f6a62;
+    }
+    .nav-shell {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.8rem calc(env(safe-area-inset-left) + 0.9rem) calc(env(safe-area-inset-bottom) + 0.8rem);
+      background: #ffffff;
+      border-top: 1px solid #d7d2ca;
+      box-shadow: 0 0 8px rgba(0,0,0,0.12);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+    }
+    .nav-shell button {
+      padding: 0.9rem 0.7rem;
+      border: none;
+      border-radius: 1rem;
+      font-weight: 700;
+    }
+    .nav-shell button.active {
+      background: #01696f;
+      color: #f9f8f4;
+    }
+
+    .app-shell {
+      padding: max(env(safe-area-inset-top), 0.8rem) 1rem max(env(safe-area-inset-bottom), 6rem);
+    }
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #6f6a62;
+    }
+    .debt-list {
+      display: grid;
+      gap: 0.9rem;
+    }
+    .debt-item {
+      padding: 0.9rem;
+      border: 1px solid #d7d2ca;
+      border-radius: 1rem;
+    }
+    .debt-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .debt-name {
+      font-weight: 700;
+      margin: 0;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(env(safe-area-inset-bottom), 0.8rem) + 5rem;
+      transform: translateX(-50%) translateY(14px);
+      background: #28251d;
+      color: #f9f8f4;
+      padding: 0.8rem 1rem;
+      border-radius: 9999px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      font-size: 0.85rem;
+      z-index: 1000;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Budget + Debt Planner</h1>
+        <p>Integrated local planner for income, bills, debts, and savings.</p>
+      </div>
+      <button class="secondary-btn" style="font-size:0.8rem;" id="themeToggle">Theme</button>
+    </header>
+
+    <main>
+      <!-- Dashboard (Monthly Review) -->
+      <section class="summary-grid" aria-label="Dashboard cards">
+        <article class="card summary-item">
+          <div class="eyebrow">Income</div>
+          <div class="summary-value" id="incomeValue">$0</div>
+          <div class="card-sub">Monthly take-home</div>
+        </article>
+        <article class="card summary-item">
+          <div class="eyebrow">Outflow</div>
+          <div class="summary-value" id="outflowValue">$0</div>
+          <div class="card-sub">Including debts</div>
+        </article>
+        <article class="card summary-item">
+          <div class="eyebrow">Leftover</div>
+          <div class="summary-value" id="leftoverValue">$0</div>
+          <div class="card-sub">Savings potential</div>
+        </article>
+        <article class="card summary-item" id="nextDueCard" role="button" tabindex="0" style="cursor:pointer;">
+          <div class="eyebrow">Next due</div>
+          <div class="summary-value" id="nextDueValue">—</div>
+          <div class="card-sub" id="nextDuePreview">Closest scheduled payment</div>
+        </article>
+      </section>
+
+      <!-- Debts -->
+      <section class="card">
+        <div class="card-title">Debts</div>
+        <div class="card-sub">Installment and revolving accounts.</div>
+        <div class="actions">
+          <button class="primary-btn" id="openAddDebt">Add debt</button>
+        </div>
+        <div id="debtList" class="debt-list"></div>
+        <div id="emptyDebt" class="empty">No debts yet. Add your first one above.</div>
+      </section>
+
+      <!-- Add debt modal -->
+      <section id="addDebtModal" class="tab-panel" style="display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center;">
+        <div class="card" style="max-width: 520px; margin: 1rem; max-height: 90dvh; overflow-y: auto;">
+          <div class="card-title">Add a debt</div>
+          <div class="card-sub">Use debt type to switch between installment and revolving accounts.</div>
+          <form id="debtForm" class="form-grid">
+            <div class="field">
+              <label for="debtName">Debt name</label>
+              <input id="debtName" required placeholder="Car loan, Visa, student loan" />
+            </div>
+            <div class="field">
+              <label>Debt type</label>
+              <div class="segmented" aria-label="Debt type selector">
+                <button type="button" class="active" data-type="installment">Installment</button>
+                <button type="button" data-type="revolving">Revolving</button>
+              </div>
+              <div class="card-sub">Installment shows a balance. Revolving can be tracked with payment only.</div>
+            </div>
+            <div class="two-col">
+              <div class="field">
+                <label for="paymentAmount">Monthly payment</label>
+                <input id="paymentAmount" type="number" min="0" step="0.01" placeholder="150" required />
+              </div>
+              <div class="field" id="balanceField">
+                <label for="balanceAmount">Balance</label>
+                <input id="balanceAmount" type="number" min="0" step="0.01" placeholder="4200" />
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="field">
+                <label for="dueDate">Due date</label>
+                <input id="dueDate" type="date" />
+              </div>
+              <div class="field">
+                <label for="debtCategory">Category</label>
+                <input id="debtCategory" placeholder="Auto, credit card, education" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="notes">Notes</label>
+              <input id="notes" placeholder="Optional details" />
+            </div>
+            <div class="actions">
+              <button class="primary-btn" type="submit">Save debt</button>
+              <button class="secondary-btn" type="button" id="closeAddDebt">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Calendar -->
+      <section class="card" id="calendarPanel">
+        <div class="card-title">Calendar</div>
+        <div class="card-sub">See debt due dates on a monthly grid and track projected payments.</div>
+        <div class="actions">
+          <select id="calendarMonth" style="max-width:220px"></select>
+        </div>
+        <div id="calendarGrid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:0.5rem; margin-top:0.8rem;"></div>
+        <div class="card-sub" id="dayPaymentSummary" style="margin-top:0.8rem;">Select a day to see the payment amount due.</div>
+      </section>
+
+      <!-- Charts -->
+      <section class="card" id="chartsPanel">
+        <div class="card-title">Charts</div>
+        <div class="card-sub">Monthly cash flow and debt progress over time.</div>
+
+        <div class="card" style="padding:1rem; margin-bottom:1rem;">
+          <div class="row-between" style="margin-bottom:0.5rem;"><strong>Monthly cash flow</strong><span class="card-sub">Income vs outflow</span></div>
+          <canvas id="monthlyCashFlow" width="400" height="200" style="max-width:100%;height:200px;"></canvas>
+        </div>
+
+        <div class="card" style="padding:1rem; margin-bottom:1rem;">
+          <div class="row-between" style="margin-bottom:0.5rem;"><strong>Debt progress</strong><span class="card-sub">Balance vs payments</span></div>
+          <canvas id="debtProgress" width="400" height="200" style="max-width:100%;height:200px;"></canvas>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section class="card" id="settingsPanel">
+        <div class="card-title">Settings</div>
+        <div class="card-sub">Customize reminder behavior
