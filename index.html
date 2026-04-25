@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Budget + Debt</title>
+  <style>
+    body { font: 1rem system-ui, -apple-system, sans-serif; margin: 1.2rem; }
+    .card { padding: 1rem; border: 1px solid #ccc; border-radius: 0.5rem; margin-bottom: 1rem; }
+    .field { margin-bottom: 0.7rem; }
+    label { font-weight: 600; display: block; margin-bottom: 0.2rem; }
+    input { width: 100%; padding: 0.7rem; border: 1px solid #aaa; border-radius: 0.5rem; font: inherit; }
+    button { background: #01696f; color: white; border: none; padding: 0.7rem; border-radius: 0.5rem; font-weight: 600; }
+    .data { margin-top: 1rem; font-size: 0.9rem; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Budget + Debt (iOS)</h1>
+  <p>Open again in Safari on this phone to see your data.</p>
+
+  <div class="card">
+    <h2>Income</h2>
+    <div class="field">
+      <label for="income">Monthly income</label>
+      <input id="income" type="number" placeholder="4500" />
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Add Debt</h2>
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" placeholder="Car loan" />
+    </div>
+    <div class="field">
+      <label for="payment">Monthly payment</label>
+      <input id="payment" type="number" placeholder="325" />
+    </div>
+    <div class="field">
+      <label for="balance">Balance (if installment)</label>
+      <input id="balance" type="number" placeholder="6400" />
+    </div>
+    <button id="add">Add Debt</button>
+  </div>
+
+  <div class="card">
+    <h2>Debts</h2>
+    <ul id="debtList"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Debug</h2>
+    <div class="data" id="data">No data yet</div>
+  </div>
+
+  <script>
+    const KEY = "budgetPhone_v1";
+
+    function load() {
+      const raw = localStorage.getItem(KEY);
+      return raw ? JSON.parse(raw) : { income: 0, debts: [] };
+    }
+
+    function save(data) {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    }
+
+    function render() {
+      const data = load();
+      const incomeEl = document.getElementById("income");
+      incomeEl.value = data.income;
+      document.getElementById("data").textContent = JSON.stringify(data, null, 2);
+
+      const list = document.getElementById("debtList");
+      list.innerHTML = "";
+      data.debts.forEach(d => {
+        const li = document.createElement("li");
+        li.textContent = `${d.name}: $${d.payment}/month`;
+        if (d.balance) li.textContent += ` (${d.balance} balance)`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById("income").addEventListener("input", () => {
+      const data = load();
+      data.income = Number(document.getElementById("income").value || 0);
+      save(data);
+    });
+
+    document.getElementById("add").addEventListener("click", () => {
+      const name = document.getElementById("name").value.trim();
+      const payment = Number(document.getElementById("payment").value || 0);
+      const balance = Number(document.getElementById("balance").value || 0);
+      if (!name || !payment) return alert("Name and payment required");
+      const data = load();
+      data.debts.unshift({ id: Math.random().toString(36).slice(2,9), name, payment, balance });
+      save(data);
+      render();
+      document.getElementById("name").value = "";
+      document.getElementById("payment").value = "";
+      document.getElementById("balance").value = "";
+    });
+
+    // Run when page loads
+    document.addEventListener("DOMContentLoaded", render);
+  </script>
+</body>
+</html>
